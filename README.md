@@ -6,7 +6,7 @@
 
 [![License](https://img.shields.io/github/license/dhrubonai/musiq?style=flat-square&color=blue)](LICENSE)
 [![Platform](https://img.shields.io/badge/Platform-Android-3DDC84.svg?style=flat-square&logo=android&logoColor=white)](https://www.android.com)
-[![API](https://img.shields.io/badge/API-26%2B-FF6F00.svg?style=flat-square&logo=android&logoColor=white)](https://developer.android.com/about/versions)
+[![API](https://img.shields.io/badge/API-24%2B-FF6F00.svg?style=flat-square&logo=android&logoColor=white)](https://developer.android.com/about/versions)
 [![Release](https://img.shields.io/github/v/release/dhrubonai/musiq?style=flat-square&logo=github&color=red)](https://github.com/dhrubonai/musiq/releases/latest)
 [![Downloads](https://img.shields.io/github/downloads/dhrubonai/musiq/total?style=flat-square&logo=github&color=blue)](https://github.com/dhrubonai/musiq/releases)
 
@@ -47,7 +47,7 @@ Just install the app and start listening — no account required.
 - **Optional Google sign-in** — sync your YouTube Music playlists (if you want)
 
 ### 📱 Built for Everyone
-- Works on Android 8.0+ (API 26+)
+- Works on Android 7.0+ (API 24)
 - Lightweight — won't drain your battery
 - Supports low-end devices
 - Available in multiple languages
