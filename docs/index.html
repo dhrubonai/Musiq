@@ -4,105 +4,518 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Musiq — A Modern, Ad-Free Music Player for Android</title>
-    <meta name="description" content="Musiq is a free, open-source music player for Android with a premium black & white theme, ad-free streaming, offline downloads, and synced lyrics.">
+    <meta name="description" content="Musiq is a free, open-source music player for Android. Premium design, ad-free streaming, offline downloads, synced lyrics.">
     <meta name="author" content="Mohiuddin Abdul Kadir Dhrubo">
     <meta property="og:title" content="Musiq — A Modern, Ad-Free Music Player">
     <meta property="og:description" content="Free, open-source music player for Android. No ads, no subscriptions, no sign-up required.">
     <meta property="og:type" content="website">
+
+    <!-- Premium Fonts: Fraunces (display) + Inter (body) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
+
         :root {
-            --bg: #000000; --surface: #0A0A0A; --surface-2: #141414; --surface-3: #1A1A1A;
-            --text: #FFFFFF; --text-secondary: #B3B3B3; --text-tertiary: #666666;
-            --border: #222222; --accent: #FFFFFF;
+            --paper: #F5F1E8;
+            --paper-dark: #EDE8DC;
+            --paper-darker: #E0DACC;
+            --ink: #1A1A1A;
+            --ink-soft: #333333;
+            --ink-muted: #666666;
+            --ink-faded: #999999;
+            --accent: #000000;
+            --line: rgba(0,0,0,0.08);
+            --line-strong: rgba(0,0,0,0.15);
         }
+
         html { scroll-behavior: smooth; }
+
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background: var(--bg); color: var(--text); line-height: 1.6;
-            -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--paper);
+            color: var(--ink);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            overflow-x: hidden;
         }
-        .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+
+        /* Paper texture overlay */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 2; }
+
+        /* ===== NAVBAR ===== */
         nav {
-            position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
-            background: rgba(0,0,0,0.85); backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px); border-bottom: 1px solid var(--border);
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 1000;
+            background: rgba(245, 241, 232, 0.8);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border-bottom: 1px solid var(--line);
+            transition: all 0.3s ease;
         }
-        nav .container { display: flex; justify-content: space-between; align-items: center; height: 64px; }
-        .nav-logo { display: flex; align-items: center; gap: 10px; font-size: 20px; font-weight: 700; color: var(--text); text-decoration: none; }
-        .nav-logo svg { width: 32px; height: 32px; }
-        .nav-links { display: flex; gap: 32px; align-items: center; }
-        .nav-links a { color: var(--text-secondary); text-decoration: none; font-size: 14px; font-weight: 500; transition: color 0.2s; }
-        .nav-links a:hover { color: var(--text); }
-        .nav-cta { background: var(--text); color: var(--bg); padding: 8px 20px; border-radius: 8px; font-weight: 600; transition: opacity 0.2s; }
-        .nav-cta:hover { opacity: 0.85; color: var(--bg); }
-        .hero { padding: 140px 0 80px; text-align: center; position: relative; overflow: hidden; }
-        .hero::before { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 600px; height: 600px; background: radial-gradient(circle, rgba(255,255,255,0.03) 0%, transparent 70%); pointer-events: none; }
-        .hero-logo { width: 120px; height: 120px; margin: 0 auto 32px; animation: float 6s ease-in-out infinite; }
-        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-        .hero h1 { font-size: clamp(40px, 8vw, 72px); font-weight: 800; letter-spacing: -0.03em; margin-bottom: 16px; line-height: 1.05; }
-        .hero p { font-size: clamp(18px, 3vw, 24px); color: var(--text-secondary); max-width: 600px; margin: 0 auto 40px; line-height: 1.5; }
-        .hero-buttons { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
-        .btn { display: inline-flex; align-items: center; gap: 8px; padding: 14px 32px; border-radius: 12px; font-size: 16px; font-weight: 600; text-decoration: none; transition: all 0.2s; border: none; cursor: pointer; }
-        .btn-primary { background: var(--text); color: var(--bg); }
-        .btn-primary:hover { opacity: 0.85; transform: translateY(-2px); }
-        .btn-secondary { background: var(--surface-2); color: var(--text); border: 1px solid var(--border); }
-        .btn-secondary:hover { background: var(--surface-3); transform: translateY(-2px); }
-        .hero-stats { display: flex; gap: 48px; justify-content: center; margin-top: 64px; flex-wrap: wrap; }
+
+        nav .container { display: flex; justify-content: space-between; align-items: center; height: 72px; }
+
+        .nav-logo {
+            display: flex; align-items: center; gap: 12px;
+            font-family: 'Fraunces', serif;
+            font-size: 22px; font-weight: 600;
+            color: var(--ink); text-decoration: none;
+            letter-spacing: -0.02em;
+        }
+
+        .nav-logo svg { width: 36px; height: 36px; }
+
+        .nav-links { display: flex; gap: 36px; align-items: center; }
+
+        .nav-links a {
+            color: var(--ink-soft); text-decoration: none;
+            font-size: 14px; font-weight: 500;
+            transition: color 0.2s; position: relative;
+        }
+
+        .nav-links a:not(.nav-cta):hover { color: var(--ink); }
+
+        .nav-links a:not(.nav-cta)::after {
+            content: ''; position: absolute; bottom: -4px; left: 0;
+            width: 0; height: 1px; background: var(--ink);
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:not(.nav-cta):hover::after { width: 100%; }
+
+        .nav-cta {
+            background: var(--ink); color: var(--paper) !important;
+            padding: 10px 24px; border-radius: 100px;
+            font-weight: 600; transition: all 0.3s;
+        }
+
+        .nav-cta:hover { background: var(--ink-soft); transform: translateY(-1px); }
+
+        /* ===== HERO ===== */
+        .hero {
+            min-height: 100vh; display: flex; align-items: center;
+            padding: 120px 0 80px; position: relative; overflow: hidden;
+        }
+
+        .hero-content { text-align: center; max-width: 900px; margin: 0 auto; }
+
+        .hero-badge {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 6px 16px;
+            background: var(--paper-darker);
+            border: 1px solid var(--line-strong);
+            border-radius: 100px;
+            font-size: 13px; font-weight: 500;
+            color: var(--ink-soft);
+            margin-bottom: 32px;
+            animation: fadeInDown 0.8s ease;
+        }
+
+        .hero-badge .dot {
+            width: 8px; height: 8px;
+            background: #2D8F3F; border-radius: 50%;
+            animation: pulse 2s ease infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        .hero-logo {
+            width: 100px; height: 100px;
+            margin: 0 auto 40px;
+            animation: fadeInScale 1s ease;
+        }
+
+        .hero h1 {
+            font-family: 'Fraunces', serif;
+            font-size: clamp(48px, 9vw, 96px);
+            font-weight: 400;
+            letter-spacing: -0.04em;
+            line-height: 1.0;
+            margin-bottom: 24px;
+            color: var(--ink);
+            animation: fadeInUp 0.8s ease 0.1s both;
+        }
+
+        .hero h1 em {
+            font-style: italic;
+            font-weight: 300;
+        }
+
+        .hero p {
+            font-size: clamp(18px, 2.5vw, 22px);
+            color: var(--ink-muted);
+            max-width: 580px;
+            margin: 0 auto 48px;
+            line-height: 1.6;
+            animation: fadeInUp 0.8s ease 0.2s both;
+        }
+
+        .hero-buttons {
+            display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;
+            animation: fadeInUp 0.8s ease 0.3s both;
+        }
+
+        .btn {
+            display: inline-flex; align-items: center; gap: 10px;
+            padding: 16px 36px; border-radius: 100px;
+            font-size: 16px; font-weight: 600;
+            text-decoration: none; transition: all 0.3s;
+            border: none; cursor: pointer;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .btn-primary {
+            background: var(--ink); color: var(--paper);
+            box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+        }
+
+        .btn-secondary {
+            background: transparent; color: var(--ink);
+            border: 1.5px solid var(--line-strong);
+        }
+
+        .btn-secondary:hover {
+            background: var(--paper-darker);
+            border-color: var(--ink);
+            transform: translateY(-2px);
+        }
+
+        .hero-stats {
+            display: flex; gap: 56px; justify-content: center;
+            margin-top: 80px; flex-wrap: wrap;
+            animation: fadeInUp 0.8s ease 0.4s both;
+        }
+
         .stat { text-align: center; }
-        .stat-number { font-size: 32px; font-weight: 800; color: var(--text); }
-        .stat-label { font-size: 14px; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.05em; }
-        section { padding: 80px 0; }
-        .section-title { font-size: clamp(32px, 5vw, 48px); font-weight: 800; letter-spacing: -0.02em; margin-bottom: 16px; text-align: center; }
-        .section-subtitle { font-size: 18px; color: var(--text-secondary); text-align: center; max-width: 600px; margin: 0 auto 64px; }
-        .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; }
-        .feature-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 32px; transition: all 0.3s; }
-        .feature-card:hover { background: var(--surface-2); border-color: var(--text-tertiary); transform: translateY(-4px); }
-        .feature-icon { width: 48px; height: 48px; margin-bottom: 20px; display: flex; align-items: center; justify-content: center; background: var(--surface-3); border-radius: 12px; }
-        .feature-icon svg { width: 24px; height: 24px; stroke: var(--text); fill: none; stroke-width: 2; }
-        .feature-card h3 { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
-        .feature-card p { color: var(--text-secondary); font-size: 15px; line-height: 1.6; }
-        .why-section { background: var(--surface); }
-        .why-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 32px; }
-        .why-item { text-align: center; }
-        .why-number { font-size: 48px; font-weight: 800; color: var(--text); margin-bottom: 8px; opacity: 0.15; }
-        .why-item h3 { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
-        .why-item p { color: var(--text-secondary); font-size: 15px; }
+
+        .stat-number {
+            font-family: 'Fraunces', serif;
+            font-size: 40px; font-weight: 500;
+            color: var(--ink); letter-spacing: -0.02em;
+        }
+
+        .stat-label {
+            font-size: 12px; color: var(--ink-faded);
+            text-transform: uppercase; letter-spacing: 0.1em;
+            font-weight: 500; margin-top: 4px;
+        }
+
+        /* ===== SECTIONS ===== */
+        section { padding: 100px 0; position: relative; }
+
+        .section-eyebrow {
+            display: inline-block;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px; font-weight: 500;
+            color: var(--ink-faded);
+            text-transform: uppercase; letter-spacing: 0.15em;
+            margin-bottom: 16px;
+        }
+
+        .section-title {
+            font-family: 'Fraunces', serif;
+            font-size: clamp(36px, 6vw, 64px);
+            font-weight: 400;
+            letter-spacing: -0.03em;
+            line-height: 1.1;
+            margin-bottom: 20px;
+            text-align: center;
+            color: var(--ink);
+        }
+
+        .section-title em { font-style: italic; font-weight: 300; }
+
+        .section-subtitle {
+            font-size: 19px; color: var(--ink-muted);
+            text-align: center; max-width: 600px;
+            margin: 0 auto 80px; line-height: 1.6;
+        }
+
+        /* ===== FEATURES ===== */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 1px;
+            background: var(--line);
+            border: 1px solid var(--line);
+            border-radius: 24px;
+            overflow: hidden;
+        }
+
+        .feature-card {
+            background: var(--paper);
+            padding: 40px 36px;
+            transition: all 0.4s ease;
+            position: relative;
+        }
+
+        .feature-card:hover {
+            background: var(--paper-dark);
+        }
+
+        .feature-icon {
+            width: 44px; height: 44px;
+            margin-bottom: 24px;
+            display: flex; align-items: center; justify-content: center;
+            background: var(--ink); color: var(--paper);
+            border-radius: 12px;
+            transition: transform 0.4s ease;
+        }
+
+        .feature-card:hover .feature-icon {
+            transform: scale(1.1) rotate(-5deg);
+        }
+
+        .feature-icon svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 2; }
+
+        .feature-card h3 {
+            font-family: 'Fraunces', serif;
+            font-size: 22px; font-weight: 500;
+            margin-bottom: 10px; color: var(--ink);
+            letter-spacing: -0.01em;
+        }
+
+        .feature-card p {
+            color: var(--ink-muted); font-size: 15px;
+            line-height: 1.65;
+        }
+
+        /* ===== WHY SECTION ===== */
+        .why-section {
+            background: var(--paper-dark);
+            border-top: 1px solid var(--line);
+            border-bottom: 1px solid var(--line);
+        }
+
+        .why-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 48px 40px;
+        }
+
+        .why-item {
+            text-align: left;
+            padding-left: 24px;
+            border-left: 2px solid var(--line-strong);
+            transition: border-color 0.3s;
+        }
+
+        .why-item:hover { border-left-color: var(--ink); }
+
+        .why-number {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px; font-weight: 500;
+            color: var(--ink-faded);
+            margin-bottom: 12px;
+            letter-spacing: 0.05em;
+        }
+
+        .why-item h3 {
+            font-family: 'Fraunces', serif;
+            font-size: 24px; font-weight: 500;
+            margin-bottom: 10px; color: var(--ink);
+            letter-spacing: -0.01em;
+        }
+
+        .why-item p {
+            color: var(--ink-muted); font-size: 15px;
+            line-height: 1.65;
+        }
+
+        /* ===== DEVELOPER ===== */
         .developer-section { text-align: center; }
-        .dev-avatar { width: 100px; height: 100px; border-radius: 50%; margin: 0 auto 24px; background: var(--surface-3); display: flex; align-items: center; justify-content: center; font-size: 40px; font-weight: 800; color: var(--text); border: 2px solid var(--text); }
-        .dev-name { font-size: 28px; font-weight: 800; margin-bottom: 8px; }
-        .dev-role { font-size: 16px; color: var(--text-secondary); margin-bottom: 32px; }
-        .dev-links { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
-        .dev-link { display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 12px; color: var(--text); text-decoration: none; font-size: 14px; font-weight: 500; transition: all 0.2s; }
-        .dev-link:hover { background: var(--surface-3); transform: translateY(-2px); }
-        .dev-link svg { width: 18px; height: 18px; fill: var(--text); }
-        .download-section { text-align: center; background: var(--surface); }
-        .download-card { max-width: 500px; margin: 0 auto; background: var(--surface-2); border: 1px solid var(--border); border-radius: 24px; padding: 48px 32px; }
-        .download-card h3 { font-size: 24px; font-weight: 700; margin-bottom: 8px; }
-        .download-card p { color: var(--text-secondary); margin-bottom: 32px; }
-        .download-meta { display: flex; gap: 24px; justify-content: center; margin-top: 24px; font-size: 14px; color: var(--text-tertiary); }
-        footer { padding: 48px 0; border-top: 1px solid var(--border); text-align: center; }
-        footer p { color: var(--text-tertiary); font-size: 14px; }
-        footer a { color: var(--text-secondary); text-decoration: none; }
-        footer a:hover { color: var(--text); }
+
+        .dev-avatar {
+            width: 96px; height: 96px;
+            border-radius: 50%;
+            margin: 0 auto 28px;
+            background: var(--ink);
+            display: flex; align-items: center; justify-content: center;
+            font-family: 'Fraunces', serif;
+            font-size: 40px; font-weight: 500;
+            color: var(--paper);
+            border: 3px solid var(--paper);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+        }
+
+        .dev-name {
+            font-family: 'Fraunces', serif;
+            font-size: 32px; font-weight: 500;
+            margin-bottom: 8px; color: var(--ink);
+            letter-spacing: -0.02em;
+        }
+
+        .dev-role {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px; color: var(--ink-faded);
+            margin-bottom: 40px;
+            text-transform: uppercase; letter-spacing: 0.1em;
+        }
+
+        .dev-links {
+            display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;
+        }
+
+        .dev-link {
+            display: inline-flex; align-items: center; gap: 10px;
+            padding: 12px 24px;
+            background: var(--paper);
+            border: 1px solid var(--line-strong);
+            border-radius: 100px;
+            color: var(--ink); text-decoration: none;
+            font-size: 14px; font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .dev-link:hover {
+            background: var(--ink); color: var(--paper);
+            border-color: var(--ink);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+        }
+
+        .dev-link svg { width: 18px; height: 18px; fill: currentColor; transition: fill 0.3s; }
+
+        /* ===== DOWNLOAD ===== */
+        .download-section {
+            background: var(--ink);
+            color: var(--paper);
+            text-align: center;
+        }
+
+        .download-section .section-title { color: var(--paper); }
+        .download-section .section-subtitle { color: rgba(245,241,232,0.6); }
+        .download-section .section-eyebrow { color: rgba(245,241,232,0.4); }
+
+        .download-card {
+            max-width: 520px; margin: 0 auto;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 24px;
+            padding: 48px 36px;
+            backdrop-filter: blur(20px);
+        }
+
+        .download-card h3 {
+            font-family: 'Fraunces', serif;
+            font-size: 28px; font-weight: 500;
+            margin-bottom: 8px; color: var(--paper);
+            letter-spacing: -0.01em;
+        }
+
+        .download-card p {
+            color: rgba(245,241,232,0.6);
+            margin-bottom: 32px;
+        }
+
+        .btn-download {
+            background: var(--paper); color: var(--ink);
+            box-shadow: 0 4px 24px rgba(0,0,0,0.3);
+        }
+
+        .btn-download:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+        }
+
+        .download-meta {
+            display: flex; gap: 24px; justify-content: center;
+            margin-top: 28px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px; color: rgba(245,241,232,0.4);
+        }
+
+        /* ===== FOOTER ===== */
+        footer {
+            padding: 48px 0; text-align: center;
+            border-top: 1px solid var(--line);
+        }
+
+        footer p {
+            color: var(--ink-faded); font-size: 14px;
+        }
+
+        footer a {
+            color: var(--ink-soft); text-decoration: none;
+            border-bottom: 1px solid var(--line-strong);
+            transition: border-color 0.2s;
+        }
+
+        footer a:hover { border-bottom-color: var(--ink); }
+
+        /* ===== ANIMATIONS ===== */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInScale {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        /* Scroll reveal */
+        .reveal {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ===== RESPONSIVE ===== */
         @media (max-width: 768px) {
             .nav-links a:not(.nav-cta) { display: none; }
-            .hero { padding: 100px 0 60px; }
+            .hero { padding: 100px 0 60px; min-height: auto; }
             .hero-stats { gap: 32px; }
-            .stat-number { font-size: 24px; }
-            section { padding: 60px 0; }
+            .stat-number { font-size: 28px; }
+            section { padding: 70px 0; }
+            .features-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
+
+    <!-- ===== NAVBAR ===== -->
     <nav>
         <div class="container">
             <a href="#" class="nav-logo">
-                <svg viewBox="0 0 100 100" fill="white">
-                    <circle cx="50" cy="50" r="40" fill="none" stroke="white" stroke-width="4"/>
-                    <circle cx="50" cy="50" r="12" fill="white"/>
-                    <rect x="70" y="15" width="4" height="50" fill="white" transform="rotate(20 72 40)"/>
-                    <circle cx="72" cy="18" r="6" fill="white"/>
+                <svg viewBox="0 0 100 100" fill="currentColor">
+                    <circle cx="50" cy="50" r="42" fill="none" stroke="currentColor" stroke-width="3"/>
+                    <circle cx="50" cy="50" r="14" fill="currentColor"/>
+                    <circle cx="50" cy="50" r="5" fill="var(--paper)"/>
+                    <rect x="72" y="14" width="3.5" height="52" fill="currentColor" transform="rotate(18 74 40)"/>
+                    <circle cx="74" cy="16" r="7" fill="currentColor"/>
                 </svg>
                 Musiq
             </a>
@@ -116,46 +529,58 @@
         </div>
     </nav>
 
+    <!-- ===== HERO ===== -->
     <section class="hero">
         <div class="container">
-            <div class="hero-logo">
-                <svg viewBox="0 0 100 100" fill="white" width="120" height="120">
-                    <circle cx="50" cy="50" r="40" fill="none" stroke="white" stroke-width="4"/>
-                    <circle cx="50" cy="50" r="12" fill="white"/>
-                    <rect x="70" y="15" width="4" height="50" fill="white" transform="rotate(20 72 40)"/>
-                    <circle cx="72" cy="18" r="6" fill="white"/>
-                </svg>
-            </div>
-            <h1>Music, reimagined.</h1>
-            <p>A modern, ad-free music player for Android. Premium design, zero distractions, completely free.</p>
-            <div class="hero-buttons">
-                <a href="https://github.com/dhrubonai/Musiq/releases/latest" target="_blank" class="btn btn-primary">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
-                    Download APK
-                </a>
-                <a href="https://github.com/dhrubonai/Musiq" target="_blank" class="btn btn-secondary">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
-                    View on GitHub
-                </a>
-            </div>
-            <div class="hero-stats">
-                <div class="stat"><div class="stat-number">100%</div><div class="stat-label">Free</div></div>
-                <div class="stat"><div class="stat-number">0</div><div class="stat-label">Ads</div></div>
-                <div class="stat"><div class="stat-number">GPL-3</div><div class="stat-label">Open Source</div></div>
-                <div class="stat"><div class="stat-number">∞</div><div class="stat-label">Downloads</div></div>
+            <div class="hero-content">
+                <div class="hero-badge">
+                    <span class="dot"></span>
+                    v1.0.0 — Now Available
+                </div>
+                <div class="hero-logo">
+                    <svg viewBox="0 0 100 100" fill="currentColor" width="100" height="100">
+                        <circle cx="50" cy="50" r="42" fill="none" stroke="currentColor" stroke-width="3"/>
+                        <circle cx="50" cy="50" r="14" fill="currentColor"/>
+                        <circle cx="50" cy="50" r="5" fill="var(--paper)"/>
+                        <rect x="72" y="14" width="3.5" height="52" fill="currentColor" transform="rotate(18 74 40)"/>
+                        <circle cx="74" cy="16" r="7" fill="currentColor"/>
+                    </svg>
+                </div>
+                <h1>Music, <em>reimagined.</em></h1>
+                <p>A modern, ad-free music player for Android. Premium design, zero distractions, completely free — forever.</p>
+                <div class="hero-buttons">
+                    <a href="https://github.com/dhrubonai/Musiq/releases/latest" target="_blank" class="btn btn-primary">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+                        Download APK
+                    </a>
+                    <a href="https://github.com/dhrubonai/Musiq" target="_blank" class="btn btn-secondary">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+                        View Source
+                    </a>
+                </div>
+                <div class="hero-stats">
+                    <div class="stat"><div class="stat-number">100%</div><div class="stat-label">Free</div></div>
+                    <div class="stat"><div class="stat-number">0</div><div class="stat-label">Ads</div></div>
+                    <div class="stat"><div class="stat-number">GPL-3</div><div class="stat-label">Open Source</div></div>
+                    <div class="stat"><div class="stat-number">∞</div><div class="stat-label">Downloads</div></div>
+                </div>
             </div>
         </div>
     </section>
 
+    <!-- ===== FEATURES ===== -->
     <section id="features">
         <div class="container">
-            <h2 class="section-title">Everything you need.</h2>
-            <p class="section-subtitle">Musiq comes packed with features that make listening to music a joy — not a chore.</p>
-            <div class="features-grid">
+            <div class="reveal" style="text-align:center; margin-bottom:80px;">
+                <span class="section-eyebrow">— Features</span>
+                <h2 class="section-title">Everything you need, <em>nothing you don't.</em></h2>
+                <p class="section-subtitle">Musiq comes packed with features that make listening to music a joy — not a chore.</p>
+            </div>
+            <div class="features-grid reveal">
                 <div class="feature-card">
                     <div class="feature-icon"><svg viewBox="0 0 24 24"><path d="M9 18V5l12-2v13M9 9l12-2M9 18a3 3 0 1 1-6 0 3 3 0 0 1 6 0zm12-2a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/></svg></div>
                     <h3>Ad-Free Streaming</h3>
-                    <p>Listen to your favorite music without a single ad. No interruptions, no pop-ups, no distractions. Just music.</p>
+                    <p>Listen without a single ad. No interruptions, no pop-ups, no distractions. Just music, pure and simple.</p>
                 </div>
                 <div class="feature-card">
                     <div class="feature-icon"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div>
@@ -165,12 +590,12 @@
                 <div class="feature-card">
                     <div class="feature-icon"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h7"/></svg></div>
                     <h3>Synced Lyrics</h3>
-                    <p>Sing along with real-time, synchronized lyrics. Supports multiple lyrics sources for maximum coverage.</p>
+                    <p>Sing along with real-time, synchronized lyrics from multiple sources for maximum coverage.</p>
                 </div>
                 <div class="feature-card">
                     <div class="feature-icon"><svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v4M8 23h8"/></svg></div>
                     <h3>Background Playback</h3>
-                    <p>Keep listening when the app is closed. Musiq plays in the background while you use other apps or lock your phone.</p>
+                    <p>Keep listening when the app is closed. Musiq plays while you use other apps or lock your phone.</p>
                 </div>
                 <div class="feature-card">
                     <div class="feature-icon"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
@@ -180,100 +605,155 @@
                 <div class="feature-card">
                     <div class="feature-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div>
                     <h3>Sleep Timer</h3>
-                    <p>Fall asleep to music. Set a timer and Musiq will gently fade out and stop playing when the time is up.</p>
+                    <p>Fall asleep to music. Set a timer and Musiq gently fades out and stops when the time is up.</p>
                 </div>
                 <div class="feature-card">
                     <div class="feature-icon"><svg viewBox="0 0 24 24"><path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4M4 6v12c0 1.1.9 2 2 2h14v-4M18 12a2 2 0 0 0-2 2c0 1.1.9 2 2 2h4v-4h-4z"/></svg></div>
-                    <h3>No Account Required</h3>
-                    <p>Just install and start listening. No sign-up, no email, no phone number. Optional Google sign-in for playlist sync.</p>
+                    <h3>No Account Needed</h3>
+                    <p>Just install and listen. No sign-up, no email, no phone number. Optional Google sign-in for sync.</p>
                 </div>
                 <div class="feature-card">
                     <div class="feature-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg></div>
-                    <h3>Premium B&W Theme</h3>
-                    <p>A clean, high-contrast black & white interface that's easy on the eyes. Pure black for OLED screens saves battery.</p>
+                    <h3>Premium Design</h3>
+                    <p>A clean, high-contrast interface that's easy on the eyes. Pure black for OLED screens saves battery.</p>
                 </div>
                 <div class="feature-card">
                     <div class="feature-icon"><svg viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></div>
                     <h3>Auto-Update</h3>
-                    <p>Musiq checks for new versions automatically. When an update is available, you'll get a notification — no manual checking needed.</p>
+                    <p>Musiq checks for new versions automatically. Get notified when an update is available — no manual checking.</p>
                 </div>
             </div>
         </div>
     </section>
 
+    <!-- ===== WHY SECTION ===== -->
     <section id="why" class="why-section">
         <div class="container">
-            <h2 class="section-title">Why choose Musiq?</h2>
-            <p class="section-subtitle">In a world of subscription-heavy, ad-filled music apps, Musiq stands apart.</p>
-            <div class="why-grid">
-                <div class="why-item"><div class="why-number">01</div><h3>Truly Free</h3><p>No subscriptions, no premium tiers, no hidden costs. Every feature is available to everyone, for free, forever.</p></div>
-                <div class="why-item"><div class="why-number">02</div><h3>Respects Your Privacy</h3><p>No tracking, no data harvesting, no selling your information. What you listen to is your business, not ours.</p></div>
-                <div class="why-item"><div class="why-number">03</div><h3>Open Source</h3><p>The entire codebase is public on GitHub. Anyone can inspect it, audit it, modify it, or contribute to it.</p></div>
-                <div class="why-item"><div class="why-number">04</div><h3>No Bloat</h3><p>Musiq is lightweight and fast. No unnecessary features, no ads, no tracking libraries slowing down your phone.</p></div>
-                <div class="why-item"><div class="why-number">05</div><h3>Works Offline</h3><p>Download your favorite songs and listen anywhere — on planes, on the metro, or anywhere without internet.</p></div>
-                <div class="why-item"><div class="why-number">06</div><h3>Made with Care</h3><p>Every pixel, every animation, every feature is crafted with intention. This is a labor of love, not a corporate product.</p></div>
+            <div class="reveal" style="text-align:center; margin-bottom:80px;">
+                <span class="section-eyebrow">— Why Musiq</span>
+                <h2 class="section-title">In a world of <em>subscription fatigue,</em></h2>
+                <p class="section-subtitle">Musiq stands apart from ad-filled, paywall-laden music apps. Here's why people choose us.</p>
+            </div>
+            <div class="why-grid reveal">
+                <div class="why-item">
+                    <div class="why-number">01 / Free</div>
+                    <h3>Truly Free</h3>
+                    <p>No subscriptions, no premium tiers, no hidden costs. Every feature is available to everyone, forever.</p>
+                </div>
+                <div class="why-item">
+                    <div class="why-number">02 / Private</div>
+                    <h3>Respects Privacy</h3>
+                    <p>No tracking, no data harvesting, no selling your information. What you listen to is your business.</p>
+                </div>
+                <div class="why-item">
+                    <div class="why-number">03 / Open</div>
+                    <h3>Open Source</h3>
+                    <p>The entire codebase is public on GitHub. Anyone can inspect, audit, modify, or contribute to it.</p>
+                </div>
+                <div class="why-item">
+                    <div class="why-number">04 / Lean</div>
+                    <h3>No Bloat</h3>
+                    <p>Lightweight and fast. No unnecessary features, no ads, no tracking libraries slowing your phone.</p>
+                </div>
+                <div class="why-item">
+                    <div class="why-number">05 / Offline</div>
+                    <h3>Works Anywhere</h3>
+                    <p>Download songs and listen anywhere — planes, metros, or anywhere without internet access.</p>
+                </div>
+                <div class="why-item">
+                    <div class="why-number">06 / Crafted</div>
+                    <h3>Made with Care</h3>
+                    <p>Every pixel, every animation, every feature is crafted with intention. A labor of love, not corporate.</p>
+                </div>
             </div>
         </div>
     </section>
 
+    <!-- ===== DEVELOPER ===== -->
     <section id="developer" class="developer-section">
         <div class="container">
-            <h2 class="section-title">Meet the Developer</h2>
-            <p class="section-subtitle">Musiq is designed, built, and maintained by a single developer.</p>
-            <div class="dev-avatar">D</div>
-            <div class="dev-name">Mohiuddin Abdul Kadir Dhrubo</div>
-            <div class="dev-role">Developer & Designer of Musiq</div>
-            <div class="dev-links">
-                <a href="mailto:dhrubomohiuddinabdulkadir@gmail.com" class="dev-link">
-                    <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
-                    Gmail
-                </a>
-                <a href="https://www.facebook.com/share/1LLhAmRUp2/" target="_blank" class="dev-link">
-                    <svg viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
-                    Facebook
-                </a>
-                <a href="https://www.instagram.com/dhrubo_morse?igsh=aHNsazZyOTY4dWN2" target="_blank" class="dev-link">
-                    <svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
-                    Instagram
-                </a>
-                <a href="https://t.me/+4f6o21r4DI1iNmNl" target="_blank" class="dev-link">
-                    <svg viewBox="0 0 24 24"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
-                    Telegram
-                </a>
-                <a href="https://donation.cinevix.fun" target="_blank" class="dev-link">
-                    <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-                    Donate
-                </a>
+            <div class="reveal" style="text-align:center; margin-bottom:60px;">
+                <span class="section-eyebrow">— The Maker</span>
+                <h2 class="section-title">Behind the <em>music.</em></h2>
+            </div>
+            <div class="reveal">
+                <div class="dev-avatar">D</div>
+                <div class="dev-name">Mohiuddin Abdul Kadir Dhrubo</div>
+                <div class="dev-role">Developer & Designer</div>
+                <div class="dev-links">
+                    <a href="mailto:dhrubomohiuddinabdulkadir@gmail.com" class="dev-link">
+                        <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+                        Gmail
+                    </a>
+                    <a href="https://www.facebook.com/share/1LLhAmRUp2/" target="_blank" class="dev-link">
+                        <svg viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                        Facebook
+                    </a>
+                    <a href="https://www.instagram.com/dhrubo_morse?igsh=aHNsazZyOTY4dWN2" target="_blank" class="dev-link">
+                        <svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+                        Instagram
+                    </a>
+                    <a href="https://t.me/+4f6o21r4DI1iNmNl" target="_blank" class="dev-link">
+                        <svg viewBox="0 0 24 24"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+                        Telegram
+                    </a>
+                    <a href="https://donation.cinevix.fun" target="_blank" class="dev-link">
+                        <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                        Donate
+                    </a>
+                </div>
             </div>
         </div>
     </section>
 
+    <!-- ===== DOWNLOAD ===== -->
     <section class="download-section">
         <div class="container">
-            <h2 class="section-title">Get Musiq.</h2>
-            <p class="section-subtitle">Download the latest version and start listening in minutes.</p>
-            <div class="download-card">
+            <div class="reveal" style="text-align:center; margin-bottom:60px;">
+                <span class="section-eyebrow">— Download</span>
+                <h2 class="section-title">Get <em>Musiq.</em></h2>
+                <p class="section-subtitle">Download the latest version and start listening in minutes.</p>
+            </div>
+            <div class="download-card reveal">
                 <h3>Musiq v1.0.0</h3>
                 <p>Latest stable release — APK for Android 8.0+</p>
-                <a href="https://github.com/dhrubonai/Musiq/releases/latest" target="_blank" class="btn btn-primary">
+                <a href="https://github.com/dhrubonai/Musiq/releases/latest" target="_blank" class="btn btn-download">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
                     Download APK
                 </a>
                 <div class="download-meta">
                     <span>42 MB</span>
+                    <span>·</span>
                     <span>Android 8.0+</span>
+                    <span>·</span>
                     <span>Auto-Updates</span>
                 </div>
             </div>
         </div>
     </section>
 
+    <!-- ===== FOOTER ===== -->
     <footer>
         <div class="container">
             <p>Musiq is open source under <a href="https://github.com/dhrubonai/Musiq/blob/main/LICENSE" target="_blank">GPL-3.0</a>. Based on <a href="https://github.com/Arturo254/OpenTune" target="_blank">OpenTune</a> by Arturo254.</p>
-            <p style="margin-top: 8px;">© 2026 Mohiuddin Abdul Kadir Dhrubo. All rights reserved.</p>
-            <p style="margin-top: 8px; font-size: 12px; opacity: 0.5;">Musiq is not affiliated with YouTube, Google, or any other company.</p>
+            <p style="margin-top: 12px;">© 2026 Mohiuddin Abdul Kadir Dhrubo. All rights reserved.</p>
+            <p style="margin-top: 8px; font-size: 12px; opacity: 0.6;">Musiq is not affiliated with YouTube, Google, or any other company.</p>
         </div>
     </footer>
+
+    <script>
+        // Scroll reveal animation
+        const reveals = document.querySelectorAll('.reveal');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.1 });
+
+        reveals.forEach(el => observer.observe(el));
+    </script>
+
 </body>
 </html>
