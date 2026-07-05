@@ -82,10 +82,10 @@ android {
 
     defaultConfig {
         applicationId = "com.dhrubo.musiq"
-        minSdk = 26
+        minSdk = 24
         targetSdk = 36
-        versionCode = 131
-        versionName = "3.0.4"
+        versionCode = 132
+        versionName = "1.1.0"
 //        versionName = "3.0.2-$gitCommit"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -169,7 +169,7 @@ android {
     }
 
     compileOptions {
-        isCoreLibraryDesugaringEnabled = false
+        isCoreLibraryDesugaringEnabled = true
         sourceCompatibility = JavaVersion.VERSION_21
         targetCompatibility = JavaVersion.VERSION_21
     }
